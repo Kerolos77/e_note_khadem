@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "269246041090",
+    "project_id": "e-note-35bda",
+    "storage_bucket": "e-note-35bda.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:269246041090:android:37776c1c1b1430962f6b1b",
+        "android_client_info": {
+          "package_name": "com.example.e_note"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "269246041090-ipb3hrs75kj1pth27f1mg7numhag4q4a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBaoAn0p6ZtfZdYtIGV2Uu30pJOMa8CsN4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "269246041090-c4n23srgmhljaibjmdivi9iv06fiqah7.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "269246041090-fa71b54fhb5ersbs4mv4tjjrqt6u1ov0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.eNote"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:269246041090:android:fec2ce510255e5702f6b1b",
+        "android_client_info": {
+          "package_name": "com.example.e_note_khadem"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "269246041090-ipb3hrs75kj1pth27f1mg7numhag4q4a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBaoAn0p6ZtfZdYtIGV2Uu30pJOMa8CsN4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "269246041090-c4n23srgmhljaibjmdivi9iv06fiqah7.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "269246041090-fa71b54fhb5ersbs4mv4tjjrqt6u1ov0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.eNote"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
