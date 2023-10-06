@@ -42,13 +42,13 @@ class Registration extends StatelessWidget {
     // passwordController.text = 'YDKLUZNT';
     // emailController.text = 'minashoukryenote.khadem@gmail.com';
     // passwordController.text = 'mina01015065920@01069082074';
-    emailController.text = 'kirollosfayek7@gmail.com';
-    passwordController.text = '65205417';
+    // emailController.text = 'kirollosfayek7@gmail.com';
+    // passwordController.text = '65205417';
 
     // emailController.text = 'marathon@gmail.com';
     // passwordController.text = 'FYIL9LKC';
-    confirmPasswordController.text = '65205417';
-    fullNameController.text = 'kirollos fayek';
+    // confirmPasswordController.text = '65205417';
+    // fullNameController.text = 'kirollos fayek';
     // teamIdController.text = '12345678';
 
     return BlocProvider(
