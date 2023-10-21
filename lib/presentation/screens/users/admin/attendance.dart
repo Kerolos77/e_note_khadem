@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:double_back_to_close_app/double_back_to_close_app.dart';
 import 'package:e_note_khadem/presentation/widgets/global/default_text/default_text.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +26,7 @@ class _AttendanceState extends State<Attendance> {
   ScanController controller = ScanController();
   bool lightFlag = false;
   bool progressFlag = false;
+  static FirebaseFirestore firebase = FirebaseFirestore.instance;
 
   var formKey = GlobalKey<FormState>();
 
@@ -50,20 +52,14 @@ class _AttendanceState extends State<Attendance> {
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery
-        .of(context)
-        .size
-        .width;
-    double height = MediaQuery
-        .of(context)
-        .size
-        .height;
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
     late AttendCubit cub;
     return BlocProvider(
         create: (BuildContext context) => AttendCubit(),
         child: BlocConsumer<AttendCubit, AttendStates>(
             listener: (BuildContext context, state) {
-              if (state is LogOutSuccessAttendState) {
+          if (state is LogOutSuccessAttendState) {
             showToast(
               message: 'Log out Successfully',
             );
@@ -167,19 +163,149 @@ class _AttendanceState extends State<Attendance> {
                     ),
                     progressFlag
                         ? Stack(
-                      children: [
-                        SizedBox(
-                          width: width,
-                          height: height,
-                        ),
-                        const Center(child: CircularProgressIndicator()),
-                      ],
-                    )
+                            children: [
+                              SizedBox(
+                                width: width,
+                                height: height,
+                              ),
+                              const Center(child: CircularProgressIndicator()),
+                            ],
+                          )
                         : const SizedBox(),
                   ],
                 ),
               ),
             ),
+            // bottomNavigationBar: ElevatedButton(
+            //   child: defaultText(text: 'Total Team Attendace Today'),
+            //   onPressed: () {
+            //     Map<String, int>? attendCount = {
+            //       'total': 0,
+            //       'lecture1': 0,
+            //       'lecture2': 0,
+            //     };
+            //     Map<String, Map<String, int>?> attendTeamID = {};
+            //     firebase.collection('users').get().then((v) {
+            //       for (int i = 0; i < v.docs.length; i++) {
+            //         String userID = v.docs[i].data()['id'];
+            //         String teamID = v.docs[i].data()['teamId'];
+            //         String date =
+            //         DateFormat('yyyy-MM-dd').format(DateTime.now());
+            //         firebase
+            //             .collection('users')
+            //             .doc(userID)
+            //             .collection('attend')
+            //             .doc(date)
+            //             .get()
+            //             .then((value) {
+            //           if (value.data() != null && value.data()!.isNotEmpty) {
+            //             if (attendTeamID.containsKey(teamID)) {
+            //               attendCount = attendTeamID[teamID];
+            //               if (value.data()?['lecture 1'] != null &&
+            //                   value.data()?['lecture 1'] != '') {
+            //                 attendCount?['lecture1'] =
+            //                     (attendCount?['lecture1'])! + 1;
+            //               }
+            //               if (value.data()?['lecture 2'] != null &&
+            //                   value.data()?['lecture 2'] != '') {
+            //                 attendCount?['lecture2'] =
+            //                     (attendCount?['lecture2'])! + 1;
+            //               }
+            //               if (value.data()?['lecture 1'] != null &&
+            //                   value.data()?['lecture 1'] != '' &&
+            //                   value.data()?['lecture 2'] != null &&
+            //                   value.data()?['lecture 2'] != '') {
+            //                 attendCount?['total'] =
+            //                     (attendCount?['total'])! + 1;
+            //               }
+            //             } else {
+            //               if (value.data()?['lecture 1'] != null &&
+            //                   value.data()?['lecture 1'] != '') {
+            //                 attendCount?['lecture1'] =
+            //                     (attendCount?['lecture1'])! + 1;
+            //               }
+            //               if (value.data()?['lecture 2'] != null &&
+            //                   value.data()?['lecture 2'] != '') {
+            //                 attendCount?['lecture2'] =
+            //                     (attendCount?['lecture2'])! + 1;
+            //               }
+            //               if (value.data()?['lecture 1'] != null &&
+            //                   value.data()?['lecture 1'] != '' &&
+            //                   value.data()?['lecture 2'] != null &&
+            //                   value.data()?['lecture 2'] != '') {
+            //                 attendCount?['total'] =
+            //                     (attendCount?['total'])! + 1;
+            //               }
+            //               attendTeamID.addAll({teamID: attendCount});
+            //             }
+            //           }
+            //         });
+            //       }
+            //       showDialog(
+            //           context: context,
+            //           builder: (BuildContext context) {
+            //             return Dialog(
+            //                 child: DataTable(
+            //                     columnSpacing: 10,
+            //                     columns: [
+            //                       DataColumn(
+            //                         label: defaultText(
+            //                             text: 'Team ID', size: 10),
+            //                       ),
+            //                       DataColumn(
+            //                         label: defaultText(text: 'Total', size: 10),
+            //                       ),
+            //                       DataColumn(
+            //                         label: defaultText(text: '1', size: 10),
+            //                       ),
+            //                       DataColumn(
+            //                         label: defaultText(text: '2', size: 10),
+            //                       ),
+            //                     ],
+            //                     rows: attendTeamID.entries
+            //                         .map((entry) =>
+            //                         DataRow(
+            //                             color: MaterialStateColor.resolveWith(
+            //                                     (states) => Colors.black12),
+            //                             cells: [
+            //                               DataCell(
+            //                                 Center(
+            //                                   child: defaultText(
+            //                                       text: entry.key, size: 13),
+            //                                 ),
+            //                               ),
+            //                               DataCell(
+            //                                 Center(
+            //                                   child: defaultText(
+            //                                       text: entry.value!['total']
+            //                                           .toString(),
+            //                                       size: 13),
+            //                                 ),
+            //                               ),
+            //                               DataCell(
+            //                                 Center(
+            //                                   child: defaultText(
+            //                                       text: entry
+            //                                           .value!['lecture1']
+            //                                           .toString(),
+            //                                       size: 13),
+            //                                 ),
+            //                               ),
+            //                               DataCell(
+            //                                 Center(
+            //                                   child: defaultText(
+            //                                       text: entry
+            //                                           .value!['lecture2']
+            //                                           .toString(),
+            //                                       size: 13),
+            //                                 ),
+            //                               ),
+            //                             ]))
+            //                         .toList()));
+            //           });
+            //     });
+            //   },
+            // ),
           );
         }));
   }

@@ -44,8 +44,8 @@ class _MarathonState extends State<Marathon> {
     setState(() {
       filteredNotoes = sampleNotes
           .where((note) =>
-      note.content.toLowerCase().contains(searchText.toLowerCase()) ||
-          note.title.toLowerCase().contains(searchText.toLowerCase()))
+              note.content.toLowerCase().contains(searchText.toLowerCase()) ||
+              note.title.toLowerCase().contains(searchText.toLowerCase()))
           .toList();
     });
   }
@@ -92,8 +92,10 @@ class _MarathonState extends State<Marathon> {
                 });
               },
               padding: const EdgeInsets.all(0),
-              icon: const Icon(
-                Icons.sort,
+              icon: Icon(
+                sorted
+                    ? FontAwesomeIcons.arrowDownWideShort
+                    : FontAwesomeIcons.arrowDownShortWide,
                 color: Colors.green,
               )),
           IconButton(
@@ -110,61 +112,60 @@ class _MarathonState extends State<Marathon> {
       ),
       body: Column(
         children: [
-
           Expanded(
               child: Padding(
-                padding: const EdgeInsets.only(left: 8.0, right: 8),
-                child: ListView.builder(
-                  padding: const EdgeInsets.only(top: 30),
-                  itemCount: filteredNotoes.length,
-                  itemBuilder: (context, index) {
-                    return Card(
-                        margin: const EdgeInsets.only(bottom: 20),
-                        color: Colors.greenAccent.shade100,
-                        elevation: 3,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                        child: Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: ListTile(
-                            title: RichText(
-                              maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
-                              text: TextSpan(
-                                  text: '${filteredNotoes[index].title} \n',
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    height: 1.5,
-                                  ),
-                                  children: [
-                                    TextSpan(
-                                      text: filteredNotoes[index].content,
-                                      style: const TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.normal,
-                                          fontSize: 14,
-                                          height: 1.5),
-                                    )
-                                  ]),
-                            ),
-                            subtitle: Padding(
-                              padding: const EdgeInsets.only(top: 8.0),
-                              child: Text(
-                                filteredNotoes[index].modifiedTime,
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontStyle: FontStyle.italic,
-                                  color: Colors.grey.shade800,
-                                ),
+            padding: const EdgeInsets.only(left: 8.0, right: 8),
+            child: ListView.builder(
+              padding: const EdgeInsets.only(top: 30),
+              itemCount: filteredNotoes.length,
+              itemBuilder: (context, index) {
+                return Card(
+                    margin: const EdgeInsets.only(bottom: 20),
+                    color: Colors.greenAccent.shade100,
+                    elevation: 3,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: ListTile(
+                        title: RichText(
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          text: TextSpan(
+                              text: '${filteredNotoes[index].title} \n',
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                height: 1.5,
                               ),
+                              children: [
+                                TextSpan(
+                                  text: filteredNotoes[index].content,
+                                  style: const TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.normal,
+                                      fontSize: 14,
+                                      height: 1.5),
+                                )
+                              ]),
+                        ),
+                        subtitle: Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            filteredNotoes[index].modifiedTime,
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontStyle: FontStyle.italic,
+                              color: Colors.grey.shade800,
                             ),
                           ),
-                        ));
-                  },
-                ),
-              ))
+                        ),
+                      ),
+                    ));
+              },
+            ),
+          ))
         ],
       ),
       floatingActionButton: FloatingActionButton(

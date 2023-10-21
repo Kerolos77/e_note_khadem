@@ -2,6 +2,7 @@ import 'package:e_note_khadem/business_logic/cubit/view_marathon_team/view_marat
 import 'package:e_note_khadem/constants/conestant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../../business_logic/cubit/view_marathon_team/view_marathon_team_states.dart';
 import '../../../widgets/global/default_button.dart';
@@ -35,6 +36,7 @@ class _ViewTeamMaratonState extends State<ViewTeamMaraton> {
           }
         }, builder: (BuildContext context, ViewMarathonTeamStates state) {
           ViewMarathonTeamCubit cub = ViewMarathonTeamCubit.get(context);
+          // cub.filteredNotoes = cub.sortNotesByModifiedTime(cub.filteredNotoes);
           return loadingFlag
               ? SizedBox(width: width, child: const LinearProgressIndicator())
               : RefreshIndicator(
@@ -83,8 +85,10 @@ class _ViewTeamMaratonState extends State<ViewTeamMaraton> {
                               });
                             },
                             padding: const EdgeInsets.all(0),
-                            icon: const Icon(
-                              Icons.sort,
+                            icon: Icon(
+                              cub.sorted
+                                  ? FontAwesomeIcons.arrowDownWideShort
+                                  : FontAwesomeIcons.arrowDownShortWide,
                               color: Colors.green,
                             )),
                       ],

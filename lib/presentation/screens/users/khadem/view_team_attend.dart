@@ -138,6 +138,62 @@ class _ViewTeamAttendState extends State<ViewTeamAttend> {
                               ]),
                         ),
                       ),
+                      // bottomNavigationBar: ElevatedButton(
+                      //   child: defaultText(text: 'Total Team Attendace Today'),
+                      //   onPressed: () {
+                      //     showDialog(
+                      //         context: context,
+                      //         builder: (BuildContext context) {
+                      //           return Dialog(
+                      //               child:
+                      //                   DataTable(columnSpacing: 30, columns: [
+                      //             DataColumn(
+                      //               label: defaultText(text: 'Total', size: 13),
+                      //             ),
+                      //             DataColumn(
+                      //               label: defaultText(
+                      //                   text: 'lecture 1', size: 13),
+                      //             ),
+                      //             DataColumn(
+                      //               label: defaultText(
+                      //                   text: 'lecture 2', size: 13),
+                      //             ),
+                      //           ], rows: [
+                      //             DataRow(
+                      //                 color: MaterialStateColor.resolveWith(
+                      //                     (states) => Colors.black12),
+                      //                 cells: [
+                      //                   DataCell(
+                      //                     Center(
+                      //                       child: defaultText(
+                      //                           text: cub.attendCount['total']
+                      //                               .toString(),
+                      //                           size: 13),
+                      //                     ),
+                      //                   ),
+                      //                   DataCell(
+                      //                     Center(
+                      //                       child: defaultText(
+                      //                           text: cub
+                      //                               .attendCount['lecture1']
+                      //                               .toString(),
+                      //                           size: 13),
+                      //                     ),
+                      //                   ),
+                      //                   DataCell(
+                      //                     Center(
+                      //                       child: defaultText(
+                      //                           text: cub
+                      //                               .attendCount['lecture2']
+                      //                               .toString(),
+                      //                           size: 13),
+                      //                     ),
+                      //                   ),
+                      //                 ])
+                      //           ]));
+                      //         });
+                      //   },
+                      // ),
                     ),
                   );
           },

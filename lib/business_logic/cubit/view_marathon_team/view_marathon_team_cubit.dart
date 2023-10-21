@@ -50,7 +50,6 @@ class ViewMarathonTeamCubit extends Cubit<ViewMarathonTeamStates> {
           for (int j = 0; j < answer.docs.length; j++) {
             DateTime start = DateTime.parse(startDate);
             DateTime end = DateTime.parse(endDate);
-
             if (value.docs[i].data()['id'] == answer.docs[j].id) {
               DateTime date = DateTime.parse(DateFormat('yyyy-MM-dd').format(
                   DateTime.parse(value.docs[i].data()['modifiedTime'])));

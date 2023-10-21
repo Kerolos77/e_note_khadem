@@ -238,11 +238,9 @@ class _KhademHomeState extends State<KhademHome> {
     firebaseReposatory.getTeamUsers().then((value) {
       for (int i = 0; i < value.docs.length; i++) {
         // userList.add(value.docs[i].data());
-        names.add(
-            "${value.docs[i].data()['firstName']} ${value.docs[i].data()['lastName']}");
+        names.add(value.docs[i].data()['fullName']);
         ids.addAll({
-          "${value.docs[i].data()['firstName']} ${value.docs[i].data()['lastName']}":
-              value.docs[i].data()['id'],
+          value.docs[i].data()['fullName']: value.docs[i].data()['id'],
         });
       }
       if (names.isEmpty) {
@@ -250,7 +248,7 @@ class _KhademHomeState extends State<KhademHome> {
       }
       setState(() {});
     }).catchError((error) {
-      print('error--------------');
+      print('error--------------$error');
     });
   }
 

@@ -38,8 +38,8 @@ class Registration extends StatelessWidget {
     // passwordController.text = '12345678';
     // emailController.text = 'manaheg@gmail.com';
     // passwordController.text = 'XY9E3CHE';
-    // emailController.text = 'attendance@gmail.com';
-    // passwordController.text = 'YDKLUZNT';
+    emailController.text = 'attendance@gmail.com';
+    passwordController.text = 'YDKLUZNT';
     // emailController.text = 'minashoukryenote.khadem@gmail.com';
     // passwordController.text = 'mina01015065920@01069082074';
     // emailController.text = 'kirollosfayek7@gmail.com';

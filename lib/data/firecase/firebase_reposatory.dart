@@ -75,6 +75,11 @@ class FirebaseReposatory {
     return firebase.collection('users').doc(userId).collection('attend').get();
   }
 
+  Future<QuerySnapshot<Map<String, dynamic>>> getAttendData(
+      {required String userId}) {
+    return firebase.collection('users').get();
+  }
+
   Future<QuerySnapshot<Map<String, dynamic>>> getKraatData(
       {required String userId}) {
     return firebase.collection('users').doc(userId).collection('kraat').get();

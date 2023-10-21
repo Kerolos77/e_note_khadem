@@ -18,7 +18,7 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  int splashTime = 0;
+  int splashTime = 3;
 
   @override
   void initState() {
@@ -49,12 +49,13 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Center(child: Column(
+      body: Center(
+          child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           logo(size: 200),
-          defaultText(text: 'Khadem',color: ConstColors.green)
+          defaultText(text: 'Khadem', color: ConstColors.green)
         ],
       )),
     );

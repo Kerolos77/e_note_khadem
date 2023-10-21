@@ -1,4 +1,3 @@
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../data/firecase/firebase_reposatory.dart';
@@ -10,20 +9,16 @@ class AttendCubit extends Cubit<AttendStates> {
   static AttendCubit get(context) => BlocProvider.of(context);
 
   final FirebaseReposatory _firebaseReposatory = FirebaseReposatory();
-  final FirebaseStorage _storage = FirebaseStorage.instance;
   bool lectureFlag = true;
   bool showContainerFlag = false;
   List<dynamic> attendModelList = [];
 
-
   Map<String, dynamic>? user;
-
 
   void changeLectureFlag(flag) {
     lectureFlag = flag;
     emit(ChangeLectureFlagAttendState());
   }
-
 
   void logout() {
     _firebaseReposatory.logout();
@@ -46,8 +41,7 @@ class AttendCubit extends Cubit<AttendStates> {
       _firebaseReposatory
           .updateUserAttend(userId: userId, lectureNum: lectureFlag ? '1' : '2')
           .then((value) {
-        emit(UpdateAttendSuccessAttendState(
-            "${user?['firstName']} ${user?['lastName']}"));
+        emit(UpdateAttendSuccessAttendState("${user?['fullName']}"));
       }).catchError((onError) {
         if (onError
             .toString()
@@ -59,5 +53,4 @@ class AttendCubit extends Cubit<AttendStates> {
       emit(GetUserErrorAttendState(onError.toString()));
     });
   }
-
 }

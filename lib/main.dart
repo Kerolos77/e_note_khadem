@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:e_note_khadem/presentation/screens/splash_screen.dart';
-import 'package:e_note_khadem/utiles/id.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,25 +23,25 @@ Future<void> main() async {
   constUid = CacheHelper.getData(key: 'user');
   teamId = CacheHelper.getData(key: 'teamId');
   constEmail = CacheHelper.getData(key: 'email');
-  FirebaseReposatory firebaseReposatory = FirebaseReposatory();
-  List<String> firstName = ['marathon', 'manaheg', 'attendance'];
-  for (int i = 0; i < firstName.length; i++) {
-    String pass = ID.createId();
-
-    String email = '${firstName[i]}@gmail.com';
-    firebaseReposatory.signUp(email: email, password: pass).then((value) {
-      firebaseReposatory.createUser(
-          userId: value.user!.uid,
-          email: email,
-          password: pass,
-          fullName: firstName[i],
-          gender: '',
-          birthDate: '',
-          teamId: '',
-          userType: '',
-          phone: '');
-    });
-  }
+  // FirebaseReposatory firebaseReposatory = FirebaseReposatory();
+  // List<String> firstName = ['marathon', 'manaheg', 'attendance'];
+  // for (int i = 0; i < firstName.length; i++) {
+  //   String pass = ID.createId();
+  //
+  //   String email = '${firstName[i]}@gmail.com';
+  //   firebaseReposatory.signUp(email: email, password: pass).then((value) {
+  //     firebaseReposatory.createUser(
+  //         userId: value.user!.uid,
+  //         email: email,
+  //         password: pass,
+  //         fullName: firstName[i],
+  //         gender: '',
+  //         birthDate: '',
+  //         teamId: '',
+  //         userType: '',
+  //         phone: '');
+  //   });
+  // }
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.white,
