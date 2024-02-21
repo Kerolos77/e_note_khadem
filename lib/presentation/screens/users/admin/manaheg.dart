@@ -1,3 +1,4 @@
+import 'package:e_note_khadem/presentation/widgets/global/default_loading.dart';
 import 'package:e_note_khadem/presentation/widgets/global/default_text/default_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,8 +7,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../business_logic/cubit/manaheg/manaheg_cubit.dart';
 import '../../../../business_logic/cubit/manaheg/manaheg_states.dart';
+import '../../../../constants/colors.dart';
 import '../../../../data/local/cache_helper.dart';
-import '../../../widgets/global/toast.dart';
+import '../../../widgets/global/default_snack_bar.dart';
 import '../../regisation_screen.dart';
 
 class Manaheg extends StatefulWidget {
@@ -22,24 +24,17 @@ class _ManahegState extends State<Manaheg> {
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery
-        .of(context)
-        .size
-        .width;
-    double height = MediaQuery
-        .of(context)
-        .size
-        .height;
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
     late ManahegCubit cub;
     return BlocProvider(
-      create: (BuildContext context) =>
-      ManahegCubit()
-        ..getMnaheg(),
+      create: (BuildContext context) => ManahegCubit()..getManaheg(),
       child: BlocConsumer<ManahegCubit, ManahegStates>(
           listener: (BuildContext context, ManahegStates state) {
         if (state is LogOutSuccessManahegState) {
-          showToast(
+          defaultSnackBar(
             message: 'Log out Successfully',
+            context: context,
           );
           CacheHelper.removeData(key: "user");
           Navigator.pushReplacement(
@@ -53,34 +48,44 @@ class _ManahegState extends State<Manaheg> {
         }
         if (state is GetManahegSuccessManahegState) {
           progressFlag = false;
-          showToast(message: 'Manaheg is ready');
         }
         if (state is UploadFileLoadingManahegState) {
           progressFlag = true;
         }
         if (state is UploadFileSuccessManahegState) {
           progressFlag = false;
-          showToast(message: 'Upload completed');
+          defaultSnackBar(
+            message: '${state.name} Uploaded Successfully',
+            context: context,
+          );
         }
         if (state is UploadFileErrorManahegState) {
           progressFlag = false;
-          showToast(message: state.error);
+          defaultSnackBar(
+            message: state.error,
+            context: context,
+          );
+        }
+        if (state is DeleteFileLoadingManahegState) {
+          progressFlag = true;
+        }
+        if (state is DeleteFileSuccessManahegState) {
+          progressFlag = false;
+          defaultSnackBar(
+            message: '${state.name} Deleted Successfully',
+            context: context,
+          );
+        }
+        if (state is DeleteFileErrorManahegState) {
+          progressFlag = false;
+          defaultSnackBar(
+            message: state.error,
+            context: context,
+          );
         }
       }, builder: (BuildContext context, ManahegStates state) {
         cub = ManahegCubit.get(context);
 
-        print(DateTime.now());
-        print(DateTime.now().add(const Duration(seconds: 10)));
-        // AwesomeNotifications().createNotification(
-        //     content: NotificationContent(
-        //         id: 10,
-        //         channelKey: 'basic_channel',
-        //         title: 'Simple Notification',
-        //         body: 'Simple body after 10 s',
-        //         actionType: ActionType.Default),
-        //     schedule: NotificationCalendar.fromDate(
-        //       date: DateTime.now().add(const Duration(seconds: 10)),
-        //     ));
         return Scaffold(
           appBar: AppBar(
             backgroundColor: Colors.white,
@@ -93,14 +98,14 @@ class _ManahegState extends State<Manaheg> {
                 icon: const Icon(
                   FontAwesomeIcons.signOutAlt,
                   size: 20,
-                  color: Colors.green,
+                  color: ConstColors.primaryColor,
                 ),
               )
             ],
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () {
-              cub.uploadPic();
+              cub.uploadFile();
             },
             child: const Icon(FontAwesomeIcons.add),
           ),
@@ -112,21 +117,65 @@ class _ManahegState extends State<Manaheg> {
                     ? ListView.separated(
                         itemBuilder: (context, index) => Card(
                           child: GestureDetector(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                children: [
-                                  const Icon(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                const Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Icon(
                                     Icons.picture_as_pdf,
                                     size: 30,
+                                    color: ConstColors.primaryColor,
                                   ),
-                                  Expanded(
-                                      child: defaultText(
-                                          text: cub.pdfNames[index]))
-                                ],
-                              ),
+                                ),
+                                Expanded(
+                                    child: defaultText(
+                                        text: cub.pdfNames[index],
+                                        overflow: false)),
+                                IconButton(
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext dialogContext) {
+                                          return AlertDialog(
+                                            title: const Icon(
+                                              FontAwesomeIcons.trashCan,
+                                              color: Colors.redAccent,
+                                            ),
+                                            content: defaultText(
+                                                overflow: false,
+                                                text:
+                                                    'Are you sure To Delete ${cub.pdfNames[index]}?'),
+                                            actions: <Widget>[
+                                              TextButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(
+                                                        dialogContext);
+                                                  },
+                                                  child: defaultText(
+                                                      text: 'Cancel',
+                                                      color: ConstColors
+                                                          .primaryColor)),
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.pop(dialogContext);
+                                                  cub.deleteFile(
+                                                      cub.pdfNames[index]);
+                                                },
+                                                child: defaultText(
+                                                    text: 'Delete',
+                                                    color: Colors.redAccent),
+                                              )
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    },
+                                    icon: const Icon(
+                                      FontAwesomeIcons.trashCan,
+                                      color: Colors.redAccent,
+                                    ))
+                              ],
                             ),
                             onTap: () async {
                               await launch(cub.pdfUrl[index]);
@@ -139,12 +188,12 @@ class _ManahegState extends State<Manaheg> {
                       )
                     : Center(
                         child: defaultText(
-                          text: 'No Manaheg Found',
-                        ),
-                      ),
+                        text: 'No Manaheg Found',
+                      )),
               ),
               progressFlag
-                  ? Center(
+                  ? Card(
+                      elevation: 1,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -152,7 +201,7 @@ class _ManahegState extends State<Manaheg> {
                           const SizedBox(
                             height: 30,
                           ),
-                          const CircularProgressIndicator(),
+                          defaultLoading(),
                         ],
                       ),
                     )
@@ -163,5 +212,4 @@ class _ManahegState extends State<Manaheg> {
       }),
     );
   }
-
 }

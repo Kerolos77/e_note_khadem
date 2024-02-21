@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../business_logic/cubit/view_team_attend/view_team_attend_cubit.dart';
 import '../../../../business_logic/cubit/view_team_attend/view_team_attend_states.dart';
+import '../../../../constants/colors.dart';
+import '../../../widgets/global/default_loading.dart';
 import '../../../widgets/global/default_text/default_text.dart';
 
 class ViewTeamAttend extends StatefulWidget {
@@ -27,7 +29,7 @@ class _ViewTeamAttendState extends State<ViewTeamAttend> {
             ViewTeamAttendCubit()..getUserAttend(memberID!),
         child: BlocConsumer<ViewTeamAttendCubit, ViewTeamAttendStates>(
           listener: (BuildContext context, ViewTeamAttendStates state) {
-            if (state is GetUserAttendLoadingViewTeamAttendState) {
+            if (state is! GetUserAttendSuccessViewTeamAttendState) {
               loadingFlag = true;
             } else {
               loadingFlag = false;
@@ -37,7 +39,11 @@ class _ViewTeamAttendState extends State<ViewTeamAttend> {
             ViewTeamAttendCubit cub = ViewTeamAttendCubit.get(context);
 
             return loadingFlag
-                ? SizedBox(width: width, child: const LinearProgressIndicator())
+                ? SizedBox(
+                    width: width,
+                    height: height,
+                    child: defaultLoading(),
+                  )
                 : RefreshIndicator(
                     onRefresh: () async {
                       cub.getUserAttend(memberID!);
@@ -61,15 +67,21 @@ class _ViewTeamAttendState extends State<ViewTeamAttend> {
                                     : DataTable(columnSpacing: 30, columns: [
                                         DataColumn(
                                           label: defaultText(
-                                              text: 'Date', size: 13),
+                                              text: 'Date',
+                                              size: 13,
+                                              color: ConstColors.primaryColor),
                                         ),
                                         DataColumn(
                                           label: defaultText(
-                                              text: 'lecture 1', size: 13),
+                                              text: 'lecture 1',
+                                              size: 13,
+                                              color: ConstColors.primaryColor),
                                         ),
                                         DataColumn(
                                           label: defaultText(
-                                              text: 'lecture 2', size: 13),
+                                              text: 'lecture 2',
+                                              size: 13,
+                                              color: ConstColors.primaryColor),
                                         ),
                                       ], rows: [
                                         for (int i = 0;
@@ -81,7 +93,9 @@ class _ViewTeamAttendState extends State<ViewTeamAttend> {
                                                 child: defaultText(
                                                     text: cub
                                                         .userAttendList[i].date,
-                                                    size: 13),
+                                                    size: 13,
+                                                    color: ConstColors
+                                                        .primaryColor),
                                               ),
                                             ),
                                             DataCell(
@@ -112,7 +126,9 @@ class _ViewTeamAttendState extends State<ViewTeamAttend> {
                                                       text: cub
                                                           .attendCount['total']
                                                           .toString(),
-                                                      size: 13),
+                                                      size: 13,
+                                                      color: ConstColors
+                                                          .primaryColor),
                                                 ),
                                               ),
                                               DataCell(
@@ -121,7 +137,9 @@ class _ViewTeamAttendState extends State<ViewTeamAttend> {
                                                       text: cub.attendCount[
                                                               'lecture1']
                                                           .toString(),
-                                                      size: 13),
+                                                      size: 13,
+                                                      color: ConstColors
+                                                          .primaryColor),
                                                 ),
                                               ),
                                               DataCell(
@@ -130,7 +148,9 @@ class _ViewTeamAttendState extends State<ViewTeamAttend> {
                                                       text: cub.attendCount[
                                                               'lecture2']
                                                           .toString(),
-                                                      size: 13),
+                                                      size: 13,
+                                                      color: ConstColors
+                                                          .primaryColor),
                                                 ),
                                               ),
                                             ])

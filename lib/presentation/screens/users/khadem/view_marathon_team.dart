@@ -5,7 +5,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../../business_logic/cubit/view_marathon_team/view_marathon_team_states.dart';
+import '../../../../constants/colors.dart';
 import '../../../widgets/global/default_button.dart';
+import '../../../widgets/global/default_loading.dart';
 import '../../../widgets/global/default_text/default_text.dart';
 import '../../../widgets/global/default_text_field.dart';
 
@@ -29,35 +31,39 @@ class _ViewTeamMaratonState extends State<ViewTeamMaraton> {
             ViewMarathonTeamCubit()..getMarathonData(memberID!),
         child: BlocConsumer<ViewMarathonTeamCubit, ViewMarathonTeamStates>(
             listener: (BuildContext context, ViewMarathonTeamStates state) {
-          if (state is GetUserLoadingMarathonState) {
+          if (state is! GetUserSuccessMarathonState) {
             loadingFlag = true;
           } else {
             loadingFlag = false;
           }
         }, builder: (BuildContext context, ViewMarathonTeamStates state) {
-          ViewMarathonTeamCubit cub = ViewMarathonTeamCubit.get(context);
-          // cub.filteredNotoes = cub.sortNotesByModifiedTime(cub.filteredNotoes);
+          ViewMarathonTeamCubit cubit = ViewMarathonTeamCubit.get(context);
+          // cubit.filteredNotoes = cubit.sortNotesByModifiedTime(cubit.filteredNotoes);
           return loadingFlag
-              ? SizedBox(width: width, child: const LinearProgressIndicator())
+              ? SizedBox(
+                  width: width,
+                  height: height,
+                  child: defaultLoading(),
+                )
               : RefreshIndicator(
                   onRefresh: () async {
-                    cub.getMarathonData(memberID!);
+                    cubit.getMarathonData(memberID!);
                   },
                   child: Scaffold(
                     backgroundColor: Colors.white,
                     appBar: AppBar(
                       elevation: 0,
                       title: TextField(
-                        onChanged: cub.onSearchTextChange,
-                        style:
-                            const TextStyle(fontSize: 16, color: Colors.grey),
+                        onChanged: cubit.onSearchTextChange,
+                        style: const TextStyle(
+                            fontSize: 16, color: ConstColors.grey),
                         decoration: InputDecoration(
                             contentPadding:
                                 const EdgeInsets.symmetric(vertical: 12),
                             hintText: "Search ...",
-                            hintStyle: const TextStyle(color: Colors.grey),
-                            prefixIcon:
-                                const Icon(Icons.search, color: Colors.grey),
+                            hintStyle: const TextStyle(color: ConstColors.grey),
+                            prefixIcon: const Icon(Icons.search,
+                                color: ConstColors.grey),
                             fillColor: Colors.white,
                             filled: true,
                             focusedBorder: OutlineInputBorder(
@@ -75,39 +81,39 @@ class _ViewTeamMaratonState extends State<ViewTeamMaraton> {
                       actions: [
                         Center(
                             child: defaultText(
-                                text: cub.filteredNotoes.length.toString())),
+                                text: cubit.filteredNotoes.length.toString())),
                         IconButton(
                             onPressed: () {
                               setState(() {
-                                cub.filteredNotoes =
-                                    cub.sortNotesByModifiedTime(
-                                        cub.filteredNotoes);
+                                cubit.filteredNotoes =
+                                    cubit.sortNotesByModifiedTime(
+                                        cubit.filteredNotoes);
                               });
                             },
                             padding: const EdgeInsets.all(0),
                             icon: Icon(
-                              cub.sorted
+                              cubit.sorted
                                   ? FontAwesomeIcons.arrowDownWideShort
                                   : FontAwesomeIcons.arrowDownShortWide,
-                              color: Colors.green,
+                              color: ConstColors.primaryColor,
                             )),
                       ],
                     ),
                     body: CustomScrollView(
                       slivers: <Widget>[
-                        cub.filteredNotoes.isEmpty
+                        cubit.filteredNotoes.isEmpty
                             ? SliverToBoxAdapter(
                                 child: Center(
                                 child: defaultText(text: 'NO DATA FOUND'),
                               ))
                             : SliverList(
                                 delegate: SliverChildBuilderDelegate(
-                                    childCount: cub.filteredNotoes.length,
+                                    childCount: cubit.filteredNotoes.length,
                                     (BuildContext context, int index) {
                                   TextEditingController commentController =
                                       TextEditingController();
                                   commentController.text =
-                                      cub.filteredNotoes[index].comment;
+                                      cubit.filteredNotoes[index].comment;
                                   return Card(
                                       margin: const EdgeInsets.only(
                                           bottom: 5, right: 5, left: 5),
@@ -124,21 +130,21 @@ class _ViewTeamMaratonState extends State<ViewTeamMaraton> {
                                           children: [
                                             ListTile(
                                               title: RichText(
-                                                maxLines: 3,
+                                                maxLines: 10,
                                                 overflow: TextOverflow.ellipsis,
                                                 text: TextSpan(
                                                     text:
-                                                        '${cub.filteredNotoes[index].title} \n',
+                                                        '${cubit.filteredNotoes[index].title} \n',
                                                     style: const TextStyle(
                                                       color: Colors.black,
-                                                      fontSize: 18,
+                                                      fontSize: 16,
                                                       fontWeight:
                                                           FontWeight.bold,
                                                       height: 1.5,
                                                     ),
                                                     children: [
                                                       TextSpan(
-                                                        text: cub
+                                                        text: cubit
                                                             .filteredNotoes[
                                                                 index]
                                                             .content,
@@ -147,7 +153,7 @@ class _ViewTeamMaratonState extends State<ViewTeamMaraton> {
                                                             fontWeight:
                                                                 FontWeight
                                                                     .normal,
-                                                            fontSize: 14,
+                                                            fontSize: 11,
                                                             height: 1.5),
                                                       )
                                                     ]),
@@ -156,7 +162,7 @@ class _ViewTeamMaratonState extends State<ViewTeamMaraton> {
                                                 padding: const EdgeInsets.only(
                                                     top: 8.0),
                                                 child: Text(
-                                                  cub.filteredNotoes[index]
+                                                  cubit.filteredNotoes[index]
                                                       .modifiedTime,
                                                   style: TextStyle(
                                                     fontSize: 10,
@@ -168,19 +174,19 @@ class _ViewTeamMaratonState extends State<ViewTeamMaraton> {
                                             ),
                                             ListTile(
                                               title: RichText(
-                                                maxLines: 3,
+                                                maxLines: 10,
                                                 overflow: TextOverflow.ellipsis,
                                                 text: TextSpan(
                                                     text: 'Answer \n',
                                                     style: const TextStyle(
                                                       color: Colors.black,
-                                                      fontSize: 15,
+                                                      fontSize: 13,
                                                       fontWeight:
                                                           FontWeight.bold,
                                                     ),
                                                     children: [
                                                       TextSpan(
-                                                        text: cub
+                                                        text: cubit
                                                             .filteredNotoes[
                                                                 index]
                                                             .answer,
@@ -198,7 +204,7 @@ class _ViewTeamMaratonState extends State<ViewTeamMaraton> {
                                                 padding: const EdgeInsets.only(
                                                     top: 8.0),
                                                 child: Text(
-                                                  cub.filteredNotoes[index]
+                                                  cubit.filteredNotoes[index]
                                                       .modifiedAnswerDate,
                                                   style: TextStyle(
                                                     fontSize: 10,
@@ -208,10 +214,12 @@ class _ViewTeamMaratonState extends State<ViewTeamMaraton> {
                                                 ),
                                               ),
                                             ),
-                                            defaultTextField(
-                                                control: commentController,
-                                                type: TextInputType.text,
-                                                text: 'Type Your Comment'),
+                                            DefaultTextField(
+                                              control: commentController,
+                                              type: TextInputType.multiline,
+                                              text: 'Type Your Comment',
+                                              maxLines: null,
+                                            ),
                                             const SizedBox(
                                               height: 10,
                                             ),
@@ -220,11 +228,12 @@ class _ViewTeamMaratonState extends State<ViewTeamMaraton> {
                                               onPressed: () {
                                                 if (commentController.text !=
                                                     '') {
-                                                  cub.addComment(
+                                                  cubit.addComment(
+                                                    context: context,
                                                     comment:
                                                         commentController.text,
                                                     userId: memberID!,
-                                                    marathonId: cub
+                                                    marathonId: cubit
                                                         .filteredNotoes[index]
                                                         .id,
                                                   );

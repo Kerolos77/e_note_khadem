@@ -1,16 +1,20 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:io';
+
+import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:double_back_to_close_app/double_back_to_close_app.dart';
+import 'package:e_note_khadem/presentation/widgets/global/default_button.dart';
 import 'package:e_note_khadem/presentation/widgets/global/default_text/default_text.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:scan/scan.dart';
+import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 import '../../../../business_logic/cubit/attendance/attendance_cubit.dart';
 import '../../../../business_logic/cubit/attendance/attendance_states.dart';
+import '../../../../constants/colors.dart';
 import '../../../../data/local/cache_helper.dart';
-import '../../../widgets/global/toast.dart';
+import '../../../widgets/global/default_loading.dart';
+import '../../../widgets/global/default_snack_bar.dart';
 import '../../regisation_screen.dart';
 
 class Attendance extends StatefulWidget {
@@ -21,33 +25,21 @@ class Attendance extends StatefulWidget {
 }
 
 class _AttendanceState extends State<Attendance> {
-  String _platformVersion = 'Unknown';
-  String qrcode = 'Unknown';
-  ScanController controller = ScanController();
   bool lightFlag = false;
   bool progressFlag = false;
-  static FirebaseFirestore firebase = FirebaseFirestore.instance;
 
+  QRViewController? controller;
+  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   var formKey = GlobalKey<FormState>();
+  bool flag = false;
 
   @override
-  void initState() {
-    super.initState();
-    initPlatformState();
-  }
-
-  Future<void> initPlatformState() async {
-    String platformVersion;
-    try {
-      platformVersion = await Scan.platformVersion;
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
+  void reassemble() {
+    super.reassemble();
+    if (Platform.isAndroid) {
+      controller!.pauseCamera();
     }
-    if (!mounted) return;
-
-    setState(() {
-      _platformVersion = platformVersion;
-    });
+    controller!.resumeCamera();
   }
 
   @override
@@ -60,8 +52,9 @@ class _AttendanceState extends State<Attendance> {
         child: BlocConsumer<AttendCubit, AttendStates>(
             listener: (BuildContext context, state) {
           if (state is LogOutSuccessAttendState) {
-            showToast(
+            defaultSnackBar(
               message: 'Log out Successfully',
+              context: context,
             );
             CacheHelper.removeData(key: "user");
             Navigator.pushReplacement(
@@ -73,28 +66,139 @@ class _AttendanceState extends State<Attendance> {
           if (state is UpdateAttendLoadingAttendState ||
               state is CreateAttendLoadingAttendState) {
             progressFlag = true;
-            controller.pause();
+            controller?.pauseCamera();
           }
 
           if (state is UpdateAttendSuccessAttendState) {
-            controller.resume();
+            controller?.resumeCamera();
             progressFlag = false;
-            showToast(
+            defaultSnackBar(
+                context: context,
                 message:
                     '${state.name} Is Attend Now lecture ${cub.lectureFlag ? '1' : '2'}',
-                backgroundColor: Colors.green);
+                backgroundColor: ConstColors.primaryColor);
           }
 
           if (state is UpdateAttendErrorAttendState) {
             progressFlag = false;
-            showToast(message: state.error);
-            controller.resume();
+            defaultSnackBar(
+              message: state.error,
+              context: context,
+            );
+            controller?.resumeCamera();
           }
           if (state is GetUserErrorAttendState) {
             progressFlag = false;
-            showToast(
-                message: 'user not found', backgroundColor: Colors.redAccent);
-            controller.resume();
+            defaultSnackBar(
+              message: 'user not found',
+              backgroundColor: Colors.redAccent,
+              context: context,
+            );
+            controller?.resumeCamera();
+          }
+          if (state is GetAllUsersLoadingAttendState) {
+            controller?.pauseCamera();
+            flag = true;
+            progressFlag = true;
+          }
+          if (state is GetAllUsersErrorAttendState) {
+            defaultSnackBar(
+              message: state.error,
+              backgroundColor: Colors.redAccent,
+              context: context,
+            );
+            controller?.resumeCamera();
+            progressFlag = false;
+          }
+          if (state is GetAllUsersSuccessAttendState) {
+            flag = false;
+            progressFlag = false;
+            // controller?.pauseCamera();
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return Dialog(
+                      child: SizedBox(
+                          height: height,
+                          child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: SingleChildScrollView(
+                                  scrollDirection: Axis.vertical,
+                                  child: Center(
+                                    child: DataTable(
+                                        columnSpacing: 10,
+                                        columns: [
+                                          DataColumn(
+                                            label: defaultText(
+                                                text: 'Team ID',
+                                                size: 10,
+                                                color:
+                                                    ConstColors.primaryColor),
+                                          ),
+                                          DataColumn(
+                                            label: defaultText(
+                                                text: 'Total',
+                                                size: 10,
+                                                color:
+                                                    ConstColors.primaryColor),
+                                          ),
+                                          DataColumn(
+                                            label: defaultText(
+                                                text: 'L 1',
+                                                size: 10,
+                                                color:
+                                                    ConstColors.primaryColor),
+                                          ),
+                                          DataColumn(
+                                            label: defaultText(
+                                                text: 'L 2',
+                                                size: 10,
+                                                color:
+                                                    ConstColors.primaryColor),
+                                          ),
+                                        ],
+                                        rows: state.attendTeamID.entries
+                                            .map((entry) => DataRow(cells: [
+                                                  DataCell(
+                                                    Center(
+                                                      child: defaultText(
+                                                          text: entry.key,
+                                                          size: 10),
+                                                    ),
+                                                  ),
+                                                  DataCell(
+                                                    Center(
+                                                      child: defaultText(
+                                                          text: entry
+                                                              .value!['total']
+                                                              .toString(),
+                                                          size: 10),
+                                                    ),
+                                                  ),
+                                                  DataCell(
+                                                    Center(
+                                                      child: defaultText(
+                                                          text: entry.value![
+                                                                  'lecture1']
+                                                              .toString(),
+                                                          size: 10),
+                                                    ),
+                                                  ),
+                                                  DataCell(
+                                                    Center(
+                                                      child: defaultText(
+                                                          text: entry.value![
+                                                                  'lecture2']
+                                                              .toString(),
+                                                          size: 10),
+                                                    ),
+                                                  ),
+                                                ]))
+                                            .toList()),
+                                  )))));
+                }).then((value) {
+              controller?.resumeCamera();
+            });
           }
         }, builder: (BuildContext context, state) {
           cub = AttendCubit.get(context);
@@ -111,14 +215,16 @@ class _AttendanceState extends State<Attendance> {
                     SizedBox(
                       width: width,
                       height: height,
-                      child: ScanView(
-                        controller: controller,
-                        scanAreaScale: 1,
-                        scanLineColor: Colors.green.shade400,
-                        onCapture: (data) {
-                          setState(() {
-                            cub.updateUserAttend(userId: data);
-                            controller.pause();
+                      child: QRView(
+                        key: qrKey,
+                        overlay: QrScannerOverlayShape(),
+                        onQRViewCreated: (QRViewController controller) {
+                          this.controller = controller;
+                          controller.scannedDataStream.listen((scanData) {
+                            setState(() {
+                              cub.updateUserAttend(userId: scanData.code ?? '');
+                              controller.pauseCamera();
+                            });
                           });
                         },
                       ),
@@ -137,7 +243,7 @@ class _AttendanceState extends State<Attendance> {
                           heroTag: "btn2",
                           mini: true,
                           onPressed: () {
-                            controller.toggleTorchMode();
+                            controller?.toggleFlash();
                             setState(() {
                               lightFlag = !lightFlag;
                             });
@@ -168,7 +274,7 @@ class _AttendanceState extends State<Attendance> {
                                 width: width,
                                 height: height,
                               ),
-                              const Center(child: CircularProgressIndicator()),
+                              defaultLoading()
                             ],
                           )
                         : const SizedBox(),
@@ -176,137 +282,31 @@ class _AttendanceState extends State<Attendance> {
                 ),
               ),
             ),
-            // bottomNavigationBar: ElevatedButton(
-            //   child: defaultText(text: 'Total Team Attendace Today'),
-            //   onPressed: () {
-            //     Map<String, int>? attendCount = {
-            //       'total': 0,
-            //       'lecture1': 0,
-            //       'lecture2': 0,
-            //     };
-            //     Map<String, Map<String, int>?> attendTeamID = {};
-            //     firebase.collection('users').get().then((v) {
-            //       for (int i = 0; i < v.docs.length; i++) {
-            //         String userID = v.docs[i].data()['id'];
-            //         String teamID = v.docs[i].data()['teamId'];
-            //         String date =
-            //         DateFormat('yyyy-MM-dd').format(DateTime.now());
-            //         firebase
-            //             .collection('users')
-            //             .doc(userID)
-            //             .collection('attend')
-            //             .doc(date)
-            //             .get()
-            //             .then((value) {
-            //           if (value.data() != null && value.data()!.isNotEmpty) {
-            //             if (attendTeamID.containsKey(teamID)) {
-            //               attendCount = attendTeamID[teamID];
-            //               if (value.data()?['lecture 1'] != null &&
-            //                   value.data()?['lecture 1'] != '') {
-            //                 attendCount?['lecture1'] =
-            //                     (attendCount?['lecture1'])! + 1;
-            //               }
-            //               if (value.data()?['lecture 2'] != null &&
-            //                   value.data()?['lecture 2'] != '') {
-            //                 attendCount?['lecture2'] =
-            //                     (attendCount?['lecture2'])! + 1;
-            //               }
-            //               if (value.data()?['lecture 1'] != null &&
-            //                   value.data()?['lecture 1'] != '' &&
-            //                   value.data()?['lecture 2'] != null &&
-            //                   value.data()?['lecture 2'] != '') {
-            //                 attendCount?['total'] =
-            //                     (attendCount?['total'])! + 1;
-            //               }
-            //             } else {
-            //               if (value.data()?['lecture 1'] != null &&
-            //                   value.data()?['lecture 1'] != '') {
-            //                 attendCount?['lecture1'] =
-            //                     (attendCount?['lecture1'])! + 1;
-            //               }
-            //               if (value.data()?['lecture 2'] != null &&
-            //                   value.data()?['lecture 2'] != '') {
-            //                 attendCount?['lecture2'] =
-            //                     (attendCount?['lecture2'])! + 1;
-            //               }
-            //               if (value.data()?['lecture 1'] != null &&
-            //                   value.data()?['lecture 1'] != '' &&
-            //                   value.data()?['lecture 2'] != null &&
-            //                   value.data()?['lecture 2'] != '') {
-            //                 attendCount?['total'] =
-            //                     (attendCount?['total'])! + 1;
-            //               }
-            //               attendTeamID.addAll({teamID: attendCount});
-            //             }
-            //           }
-            //         });
-            //       }
-            //       showDialog(
-            //           context: context,
-            //           builder: (BuildContext context) {
-            //             return Dialog(
-            //                 child: DataTable(
-            //                     columnSpacing: 10,
-            //                     columns: [
-            //                       DataColumn(
-            //                         label: defaultText(
-            //                             text: 'Team ID', size: 10),
-            //                       ),
-            //                       DataColumn(
-            //                         label: defaultText(text: 'Total', size: 10),
-            //                       ),
-            //                       DataColumn(
-            //                         label: defaultText(text: '1', size: 10),
-            //                       ),
-            //                       DataColumn(
-            //                         label: defaultText(text: '2', size: 10),
-            //                       ),
-            //                     ],
-            //                     rows: attendTeamID.entries
-            //                         .map((entry) =>
-            //                         DataRow(
-            //                             color: MaterialStateColor.resolveWith(
-            //                                     (states) => Colors.black12),
-            //                             cells: [
-            //                               DataCell(
-            //                                 Center(
-            //                                   child: defaultText(
-            //                                       text: entry.key, size: 13),
-            //                                 ),
-            //                               ),
-            //                               DataCell(
-            //                                 Center(
-            //                                   child: defaultText(
-            //                                       text: entry.value!['total']
-            //                                           .toString(),
-            //                                       size: 13),
-            //                                 ),
-            //                               ),
-            //                               DataCell(
-            //                                 Center(
-            //                                   child: defaultText(
-            //                                       text: entry
-            //                                           .value!['lecture1']
-            //                                           .toString(),
-            //                                       size: 13),
-            //                                 ),
-            //                               ),
-            //                               DataCell(
-            //                                 Center(
-            //                                   child: defaultText(
-            //                                       text: entry
-            //                                           .value!['lecture2']
-            //                                           .toString(),
-            //                                       size: 13),
-            //                                 ),
-            //                               ),
-            //                             ]))
-            //                         .toList()));
-            //           });
-            //     });
-            //   },
-            // ),
+            bottomNavigationBar: Container(
+              color: Colors.white,
+              height: 40,
+              child: ConditionalBuilder(
+                condition: (!flag),
+                builder: (BuildContext context) => Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: defaultButton(
+                    text: 'Total Attendance Today',
+                    width: width,
+                    onPressed: () {
+                      cub.getAllUserAttend();
+                    },
+                  ),
+                ),
+                fallback: (BuildContext context) => defaultLoading(size: 30),
+              ),
+            ),
           );
         }));
+  }
+
+  @override
+  void dispose() {
+    controller?.dispose();
+    super.dispose();
   }
 }

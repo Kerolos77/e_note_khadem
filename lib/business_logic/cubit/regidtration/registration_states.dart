@@ -15,6 +15,7 @@ class SignUpErrorRegistrationState extends RegistrationState {
 
   SignUpErrorRegistrationState(this.error);
 }
+
 class EmailVerificationLoadingRegistrationState extends RegistrationState {}
 
 class EmailVerificationSuccessRegistrationState extends RegistrationState {}
@@ -48,3 +49,5 @@ class LogoutErrorRegistrationState extends RegistrationState {
 
   LogoutErrorRegistrationState(this.error);
 }
+
+class UserTypeNotAllowedRegistrationState extends RegistrationState {}

@@ -30,14 +30,18 @@ class UpdateAttendErrorAttendState extends AttendStates {
   UpdateAttendErrorAttendState(this.error);
 }
 
-class DeleteBarcodeLoadingAttendState extends AttendStates {}
+class GetAllUsersLoadingAttendState extends AttendStates {}
 
-class DeleteBarcodeSuccessAttendState extends AttendStates {}
+class GetAllUsersSuccessAttendState extends AttendStates {
+  late Map<String, Map<String, int>?> attendTeamID;
 
-class DeleteBarcodeErrorAttendState extends AttendStates {
+  GetAllUsersSuccessAttendState(this.attendTeamID);
+}
+
+class GetAllUsersErrorAttendState extends AttendStates {
   late String error;
 
-  DeleteBarcodeErrorAttendState(this.error);
+  GetAllUsersErrorAttendState(this.error);
 }
 
 class LogOutSuccessAttendState extends AttendStates {}

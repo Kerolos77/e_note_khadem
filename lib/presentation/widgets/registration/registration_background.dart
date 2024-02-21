@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
+import '../../../constants/colors.dart';
+
 Widget registrationBackground({
   required BuildContext context,
 }) {
@@ -12,7 +14,7 @@ Widget registrationBackground({
       children: [
         SvgPicture.asset(
           "assets/images/background_login_top.svg",
-          color: const Color.fromRGBO(26, 188, 0, 0.8274509803921568),
+          color: ConstColors.primaryColor,
         ),
         SizedBox(
           width: MediaQuery.of(context).size.width,
@@ -22,7 +24,7 @@ Widget registrationBackground({
             children: [
               SvgPicture.asset(
                 "assets/images/background_login_bottom.svg",
-                color: const Color.fromRGBO(26, 188, 0, 0.8274509803921568),
+                color: ConstColors.primaryColor,
               ),
             ],
           ),

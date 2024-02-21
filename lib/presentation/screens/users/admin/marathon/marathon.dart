@@ -7,7 +7,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../../../data/firecase/firebase_reposatory.dart';
 import '../../../../../data/local/cache_helper.dart';
 import '../../../../../data/models/marathon_model.dart';
-import '../../../../widgets/global/toast.dart';
+import '../../../../widgets/global/default_snack_bar.dart';
 import '../../../regisation_screen.dart';
 import 'marathon_add.dart';
 
@@ -129,13 +129,13 @@ class _MarathonState extends State<Marathon> {
                       padding: const EdgeInsets.all(10.0),
                       child: ListTile(
                         title: RichText(
-                          maxLines: 3,
+                          maxLines: 10,
                           overflow: TextOverflow.ellipsis,
                           text: TextSpan(
                               text: '${filteredNotoes[index].title} \n',
                               style: const TextStyle(
                                 color: Colors.black,
-                                fontSize: 18,
+                                fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 height: 1.5,
                               ),
@@ -145,7 +145,7 @@ class _MarathonState extends State<Marathon> {
                                   style: const TextStyle(
                                       color: Colors.black,
                                       fontWeight: FontWeight.normal,
-                                      fontSize: 14,
+                                      fontSize: 11,
                                       height: 1.5),
                                 )
                               ]),
@@ -188,8 +188,9 @@ class _MarathonState extends State<Marathon> {
 
   void logout() {
     FirebaseAuth.instance.signOut();
-    showToast(
+    defaultSnackBar(
       message: 'Log out Successfully',
+      context: context,
     );
     CacheHelper.removeData(key: "user");
     Navigator.pushReplacement(

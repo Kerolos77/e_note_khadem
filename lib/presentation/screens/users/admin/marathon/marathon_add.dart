@@ -1,9 +1,10 @@
 import 'package:e_note_khadem/data/firecase/firebase_reposatory.dart';
+import 'package:e_note_khadem/presentation/widgets/global/default_text/default_text.dart';
 import 'package:e_note_khadem/utiles/id.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../data/models/marathon_model.dart';
-import '../../../../widgets/global/toast.dart';
+import '../../../../widgets/global/default_snack_bar.dart';
 import 'marathon.dart';
 
 class MarathonAdd extends StatefulWidget {
@@ -19,6 +20,7 @@ class _MarathonAddState extends State<MarathonAdd> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
   FirebaseReposatory firebaseReposatory = FirebaseReposatory();
+  bool loadingFlag = false;
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +63,7 @@ class _MarathonAddState extends State<MarathonAdd> {
                 maxLines: null,
                 decoration: const InputDecoration(
                     border: InputBorder.none,
-                    hintText: 'Type anything  here ',
+                    hintText: 'Content',
                     hintStyle: TextStyle(
                       color: Colors.grey,
                     )),
@@ -69,29 +71,57 @@ class _MarathonAddState extends State<MarathonAdd> {
             ],
           )),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          if (_titleController.text != '' || _contentController.text != '') {
-            firebaseReposatory
-                .createMarathon(
-                    id: ID.createId(),
-                    title: _titleController.text,
-                    content: _contentController.text,
-                    modifiedTime: DateTime.now().toString())
-                .then((value) {
-              showToast(
-                message: 'Done',
-              );
-              Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const Marathon(),
-                  ));
-            }).catchError((error) {});
-          }
-        },
+        onPressed: loadingFlag
+            ? () {}
+            : () {
+                if (_titleController.text != '' &&
+                    _contentController.text != '') {
+                  setState(() {
+                    loadingFlag = true;
+                  });
+                  firebaseReposatory
+                      .createMarathon(
+                          id: ID.createId(),
+                          title: _titleController.text,
+                          content: _contentController.text,
+                          modifiedTime: DateTime.now().toString())
+                      .then((value) {
+                    setState(() {
+                      loadingFlag = false;
+                    });
+                    defaultSnackBar(
+                      message: 'Done',
+                      context: context,
+                    );
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const Marathon(),
+                        ));
+                  }).catchError((error) {
+                    setState(() {
+                      loadingFlag = false;
+                    });
+
+                    defaultSnackBar(
+                      message: error,
+                      context: context,
+                    );
+                  });
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: defaultText(
+                          text: 'Title OR Content Cant be Empty ',
+                          color: Colors.white)));
+                }
+              },
         elevation: 10,
         backgroundColor: Colors.green.shade300,
-        child: const Icon(Icons.save),
+        child: loadingFlag
+            ? const CircularProgressIndicator(
+                color: Colors.white,
+              )
+            : const Icon(Icons.save),
       ),
     );
   }

@@ -34,10 +34,28 @@ class GetManahegLoadingManahegState extends ManahegStates {}
 
 class UploadFileLoadingManahegState extends ManahegStates {}
 
-class UploadFileSuccessManahegState extends ManahegStates {}
+class UploadFileSuccessManahegState extends ManahegStates {
+  late String name;
+
+  UploadFileSuccessManahegState(this.name);
+}
 
 class UploadFileErrorManahegState extends ManahegStates {
   late String error;
 
   UploadFileErrorManahegState(this.error);
+}
+
+class DeleteFileLoadingManahegState extends ManahegStates {}
+
+class DeleteFileSuccessManahegState extends ManahegStates {
+  late String name;
+
+  DeleteFileSuccessManahegState(this.name);
+}
+
+class DeleteFileErrorManahegState extends ManahegStates {
+  late String error;
+
+  DeleteFileErrorManahegState(this.error);
 }

@@ -1,6 +1,7 @@
 import 'package:double_back_to_close_app/double_back_to_close_app.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:e_note_khadem/constants/colors.dart';
+import 'package:e_note_khadem/presentation/screens/users/khadem/khadem_reports.dart';
 import 'package:e_note_khadem/presentation/screens/users/khadem/view_marathon_team.dart';
 import 'package:e_note_khadem/presentation/screens/users/khadem/view_team_attend.dart';
 import 'package:e_note_khadem/presentation/widgets/global/default_text/default_text.dart';
@@ -14,7 +15,7 @@ import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import '../../../../constants/conestant.dart';
 import '../../../../data/firecase/firebase_reposatory.dart';
 import '../../../../data/local/cache_helper.dart';
-import '../../../widgets/global/toast.dart';
+import '../../../widgets/global/default_snack_bar.dart';
 import '../../regisation_screen.dart';
 import 'view_kraat_team.dart';
 
@@ -30,13 +31,14 @@ class _KhademHomeState extends State<KhademHome> {
     const ViewKraatTeam(),
     const ViewTeamMaraton(),
     const ViewTeamAttend(),
+    const KhademReports(),
   ];
   Map<String, String> ids = {};
   List<String> names = [];
   String? selectedValue;
   bool dateFlag = false;
+  bool userFlag = false;
   bool flag = false;
-
   var screenIndex = 0;
   FirebaseReposatory firebaseReposatory = FirebaseReposatory();
 
@@ -50,6 +52,7 @@ class _KhademHomeState extends State<KhademHome> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: 80,
         backgroundColor: Colors.white,
         elevation: 0,
         actions: [
@@ -93,7 +96,7 @@ class _KhademHomeState extends State<KhademHome> {
             icon: const Icon(
               FontAwesomeIcons.signOutAlt,
               size: 20,
-              color: Colors.green,
+              color: ConstColors.primaryColor,
             ),
           )
         ],
@@ -102,60 +105,64 @@ class _KhademHomeState extends State<KhademHome> {
           children: [
             names.isNotEmpty
                 ? DropdownButtonFormField2<String>(
-                    isExpanded: true,
-                    decoration: const InputDecoration(
-                      contentPadding: EdgeInsets.symmetric(vertical: 0),
-                      border: OutlineInputBorder(borderSide: BorderSide.none),
-                    ),
-                    hint: defaultText(text: 'Select Team Member', size: 10),
-                    items: names
-                        .map((item) => DropdownMenuItem<String>(
-                              value: item,
-                              child: defaultText(text: item, size: 10),
-                            ))
-                        .toList(),
-                    validator: (value) {
-                      if (value == null) {
-                        return 'Please select Team Member.';
-                      }
-                      return null;
-                    },
-                    onChanged: (value) {
-                      memberID = ids[value];
-                      selectedValue = value.toString();
-                      setState(() {});
-                    },
-                    onSaved: (value) {
-                      selectedValue = value.toString();
-                    },
-                    buttonStyleData: const ButtonStyleData(
-                      padding: EdgeInsets.only(right: 8),
-                    ),
-                    iconStyleData: const IconStyleData(
-                      icon: Icon(
-                        Icons.arrow_drop_down,
-                        color: Colors.black45,
-                      ),
-                      iconSize: 20,
-                    ),
-                    dropdownStyleData: DropdownStyleData(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    menuItemStyleData: const MenuItemStyleData(
-                      padding: EdgeInsets.symmetric(horizontal: 8),
-                    ),
-                  )
+              isExpanded: true,
+              decoration: const InputDecoration(
+                contentPadding: EdgeInsets.symmetric(vertical: 0),
+                border: OutlineInputBorder(borderSide: BorderSide.none),
+              ),
+              hint: defaultText(text: 'Select Team Member', size: 10),
+              items: names
+                  .map((item) =>
+                  DropdownMenuItem<String>(
+                    value: item,
+                    child: defaultText(text: item, size: 10),
+                  ))
+                  .toList(),
+              validator: (value) {
+                if (value == null) {
+                  return 'Please select Team Member.';
+                }
+                return null;
+              },
+              onChanged: (value) {
+                setState(() {
+                  memberID = ids[value];
+                  selectedValue = value.toString();
+                });
+              },
+              onMenuStateChange: (bool flag) {
+                setState(() {
+                  userFlag = flag;
+                });
+              },
+              buttonStyleData: const ButtonStyleData(
+                padding: EdgeInsets.only(right: 8),
+              ),
+              iconStyleData: const IconStyleData(
+                icon: Icon(
+                  Icons.arrow_drop_down,
+                  color: ConstColors.primaryColor,
+                ),
+                iconSize: 20,
+              ),
+              dropdownStyleData: DropdownStyleData(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              menuItemStyleData: const MenuItemStyleData(
+                padding: EdgeInsets.symmetric(horizontal: 8),
+              ),
+            )
                 : flag
-                    ? defaultText(text: 'No Team Member')
-                    : const LinearProgressIndicator(),
+                ? defaultText(text: 'No Team Member')
+                : const LinearProgressIndicator(),
             GestureDetector(
               child: defaultText(
                   text: 'Team ID: ${teamId!}',
-                  color: ConstColors.green,
-                  size: 10),
-              onDoubleTap: () {
+                  color: ConstColors.primaryColor,
+                  size: 12),
+              onLongPress: () {
                 Clipboard.setData(ClipboardData(text: teamId!)).then((_) {
                   ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text("Team ID is copied")));
@@ -188,12 +195,19 @@ class _KhademHomeState extends State<KhademHome> {
             ),
             label: '',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              FontAwesomeIcons.fileLines,
+              size: 20,
+            ),
+            label: '',
+          ),
         ],
         backgroundColor: Colors.white,
         selectedFontSize: 0,
         currentIndex: screenIndex,
-        selectedItemColor: Colors.grey,
-        unselectedItemColor: Colors.green,
+        selectedItemColor: ConstColors.grey,
+        unselectedItemColor: ConstColors.primaryColor,
         onTap: (value) {
           setState(() {
             screenIndex = value;
@@ -205,23 +219,28 @@ class _KhademHomeState extends State<KhademHome> {
         snackBar: const SnackBar(
           content: Text('Tap back again to leave'),
         ),
-        child: selectedValue == null
+        child: selectedValue == null && screenIndex != 3
             ? Center(
-                child: defaultText(text: 'Please select Team Member'),
-              )
+          child: defaultText(text: 'Please select Team Member'),
+        )
             : dateFlag
-                ? const Center(
-                    child: CircularProgressIndicator(),
-                  )
-                : screens[screenIndex],
+            ? const Center(
+          child: CircularProgressIndicator(),
+        )
+            : userFlag && screenIndex != 3
+            ? const Center(
+          child: CircularProgressIndicator(),
+        )
+            : screens[screenIndex],
       ),
     );
   }
 
   void logout() {
     FirebaseAuth.instance.signOut();
-    showToast(
+    defaultSnackBar(
       message: 'Log out Successfully',
+      context: context,
     );
     CacheHelper.removeData(key: "user");
     Navigator.pushReplacement(

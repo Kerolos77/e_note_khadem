@@ -21,11 +21,13 @@ class ViewTeamAttendCubit extends Cubit<ViewTeamAttendStates> {
   FirebaseReposatory firebaseReposatory = FirebaseReposatory();
 
   void getUserAttend(String userId) {
-    emit(GetUserAttendLoadingViewTeamAttendState());
+    Future(() {}).then((value) {
+      emit(GetUserAttendLoadingViewTeamAttendState());
+    });
+    DateTime start = DateTime.parse(startDate);
+    DateTime end = DateTime.parse(endDate);
     firebaseReposatory.getUserAttendData(userId: userId).then((value) {
       userAttendList = [];
-      DateTime start = DateTime.parse(startDate);
-      DateTime end = DateTime.parse(endDate);
       for (int i = 0; i < value.docs.length; i++) {
         DateTime date = DateTime.parse(value.docs[i].id.toString());
         if (date.compareTo(start) > 0 && date.compareTo(end) < 0) {

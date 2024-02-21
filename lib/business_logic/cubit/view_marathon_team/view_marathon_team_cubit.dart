@@ -1,10 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../data/firecase/firebase_reposatory.dart';
 import '../../../constants/conestant.dart';
 import '../../../data/models/marathon_answer_model.dart';
-import '../../../presentation/widgets/global/toast.dart';
+import '../../../presentation/widgets/global/default_snack_bar.dart';
 import 'view_marathon_team_states.dart';
 
 class ViewMarathonTeamCubit extends Cubit<ViewMarathonTeamStates> {
@@ -32,24 +33,26 @@ class ViewMarathonTeamCubit extends Cubit<ViewMarathonTeamStates> {
   void onSearchTextChange(String searchText) {
     filteredNotoes = sampleNotes
         .where((note) =>
-            note.content.toLowerCase().contains(searchText.toLowerCase()) ||
-            note.title.toLowerCase().contains(searchText.toLowerCase()))
+    note.content.toLowerCase().contains(searchText.toLowerCase()) ||
+        note.title.toLowerCase().contains(searchText.toLowerCase()))
         .toList();
     emit(SearchSuccessMarathonState());
   }
 
   void getMarathonData(String userId) {
-    emit(GetUserLoadingMarathonState());
+    Future(() {}).then((value) {
+      emit(GetUserLoadingMarathonState());
+    });
     MarathonAnswerModel marathonAnswerModel;
     sampleNotes = [];
+    DateTime start = DateTime.parse(startDate);
+    DateTime end = DateTime.parse(endDate);
     firebaseReposatory.getMarathonData().then((value) {
       firebaseReposatory
           .getUserMarathonAnswerData(userId: userId)
           .then((answer) {
         for (int i = 0; i < value.docs.length; i++) {
           for (int j = 0; j < answer.docs.length; j++) {
-            DateTime start = DateTime.parse(startDate);
-            DateTime end = DateTime.parse(endDate);
             if (value.docs[i].data()['id'] == answer.docs[j].id) {
               DateTime date = DateTime.parse(DateFormat('yyyy-MM-dd').format(
                   DateTime.parse(value.docs[i].data()['modifiedTime'])));
@@ -70,7 +73,7 @@ class ViewMarathonTeamCubit extends Cubit<ViewMarathonTeamStates> {
           }
         }
         filteredNotoes = sampleNotes;
-        emit(GetUserSuccessMarathonState());
+        emit(GetUserSuccessMarathonState(filteredNotoes));
       }).catchError((error) {
         print(error.toString());
         emit(GetUserErrorMarathonState(error.toString()));
@@ -82,13 +85,15 @@ class ViewMarathonTeamCubit extends Cubit<ViewMarathonTeamStates> {
     required String comment,
     required String marathonId,
     required String userId,
+    required BuildContext context,
+
   }) {
     // emit(AddCommentLoadingMarathonState());
     firebaseReposatory
         .updateUserMarathonAnswer(
-            comment: comment, marathonId: marathonId, userId: userId)
+        comment: comment, marathonId: marathonId, userId: userId)
         .then((value) {
-      showToast(message: 'Comment Saved');
+      defaultSnackBar(message: 'Comment Saved', context: context);
       // emit(AddCommentSuccessMarathonState());
     }).catchError((error) {
       // emit(AddCommentErrorMarathonState(error.toString()));

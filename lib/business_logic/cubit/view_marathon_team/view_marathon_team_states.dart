@@ -1,10 +1,16 @@
+import 'package:e_note_khadem/data/models/marathon_answer_model.dart';
+
 abstract class ViewMarathonTeamStates {}
 
 class InitialMarathonState extends ViewMarathonTeamStates {}
 
 class GetUserLoadingMarathonState extends ViewMarathonTeamStates {}
 
-class GetUserSuccessMarathonState extends ViewMarathonTeamStates {}
+class GetUserSuccessMarathonState extends ViewMarathonTeamStates {
+  late List<MarathonAnswerModel> filteredNotoes;
+
+  GetUserSuccessMarathonState(this.filteredNotoes);
+}
 
 class GetUserErrorMarathonState extends ViewMarathonTeamStates {
   late String error;

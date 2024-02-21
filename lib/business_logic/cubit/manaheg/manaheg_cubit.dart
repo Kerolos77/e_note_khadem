@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../data/firecase/firebase_reposatory.dart';
+import '../../../constants/conestant.dart';
 import 'manaheg_states.dart';
 
 class ManahegCubit extends Cubit<ManahegStates> {
@@ -39,19 +40,21 @@ class ManahegCubit extends Cubit<ManahegStates> {
     emit(LogOutSuccessManahegState());
   }
 
-  Future<void> uploadPic() async {
+  Future<void> uploadFile() async {
     await FilePicker.platform.pickFiles().then((value) async {
       if (value != null) {
         emit(UploadFileLoadingManahegState());
-        File file = File(value!.paths[0]!);
-        Reference reference = _storage.ref().child(file.path.split('/').last);
+        File file = File(value.paths[0]!);
+        String name = file.path
+            .split('/')
+            .last;
+        Reference reference =
+        _storage.ref(payId).child(name);
         UploadTask uploadTask = reference.putFile(file);
 
         await uploadTask.whenComplete(() async {
-          var url = await reference.getDownloadURL();
-          getMnaheg();
-          emit(UploadFileSuccessManahegState());
-          // CacheHelper.putData(key: name, value: url.toString());
+          getManaheg();
+          emit(UploadFileSuccessManahegState(name));
         }).catchError((error) {
           emit(UploadFileErrorManahegState(error.toString()));
           print(onError);
@@ -60,21 +63,35 @@ class ManahegCubit extends Cubit<ManahegStates> {
     });
   }
 
-  void getMnaheg() {
+  void getManaheg() {
     pdfNames = [];
     pdfUrl = [];
-    emit(GetManahegLoadingManahegState());
-    _storage.ref().listAll().then((v) {
-      v.items.forEach((Reference ref) {
+    Future(() {}).then((value) {
+      emit(GetManahegLoadingManahegState());
+    });
+    _storage.ref(payId).listAll().then((v) {
+      for (var ref in v.items) {
         ref.getDownloadURL().then((value) {
-          pdfNames.add(ref.fullPath);
+          pdfNames.add(ref.name);
           pdfUrl.add(value);
           if (v.items.last == ref) {
             emit(GetManahegSuccessManahegState());
           }
         });
-      });
+      }
     }).catchError((error) {});
+  }
+
+  void deleteFile(String name) {
+    Future(() {}).then((value) {
+      emit(DeleteFileLoadingManahegState());
+    });
+    _storage.ref(payId).child(name).delete().then((value) {
+      getManaheg();
+      emit(DeleteFileSuccessManahegState(name));
+    }).catchError((error) {
+      emit(DeleteFileErrorManahegState(error.toString()));
+    });
   }
 
   Future<File> createFileOfPdfUrl() async {

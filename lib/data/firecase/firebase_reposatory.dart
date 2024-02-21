@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:e_note_khadem/data/models/kraat_model.dart';
 import 'package:e_note_khadem/data/models/marathon_model.dart';
 import 'package:e_note_khadem/data/models/user_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -28,9 +27,10 @@ class FirebaseReposatory {
     required String teamId,
     required String userType,
     required String phone,
+    required String payId,
   }) async {
     UserModel userModel = UserModel(fullName, email, userId, phone, password,
-        gender, birthDate, teamId, userType);
+        gender, birthDate, teamId, userType, payId);
     return firebase.collection('khadem').doc(userId).set(userModel.toMap());
   }
 
@@ -42,7 +42,12 @@ class FirebaseReposatory {
   }) async {
     MarathonModel marathonModel =
         MarathonModel(id, title, content, modifiedTime);
-    return firebase.collection('marathon').doc(id).set(marathonModel.toMap());
+    return firebase
+        .collection('admin')
+        .doc(payId)
+        .collection('marathon')
+        .doc(id)
+        .set(marathonModel.toMap());
   }
 
   Future<UserCredential> signUp({
@@ -70,17 +75,27 @@ class FirebaseReposatory {
     return firebase.collection('users').doc(userId).get();
   }
 
+  Future<DocumentSnapshot<Map<String, dynamic>>> getKhademData(
+      {required String userId}) {
+    return firebase.collection('khadem').doc(userId).get();
+  }
+
   Future<QuerySnapshot<Map<String, dynamic>>> getUserAttendData(
       {required String userId}) {
     return firebase.collection('users').doc(userId).collection('attend').get();
   }
 
-  Future<QuerySnapshot<Map<String, dynamic>>> getAttendData(
-      {required String userId}) {
-    return firebase.collection('users').get();
+  Future<DocumentSnapshot<Map<String, dynamic>>> getUserAttendDayData(
+      {required String userId, required String date}) {
+    return firebase
+        .collection('users')
+        .doc(userId)
+        .collection('attend')
+        .doc(date)
+        .get();
   }
 
-  Future<QuerySnapshot<Map<String, dynamic>>> getKraatData(
+  Future<QuerySnapshot<Map<String, dynamic>>> getUserKraatData(
       {required String userId}) {
     return firebase.collection('users').doc(userId).collection('kraat').get();
   }
@@ -95,7 +110,7 @@ class FirebaseReposatory {
   }
 
   Future<QuerySnapshot<Map<String, dynamic>>> getMarathonData() {
-    return firebase.collection('marathon').get();
+    return firebase.collection('admin').doc(payId).collection('marathon').get();
   }
 
   Future<QuerySnapshot<Map<String, dynamic>>> getTeamUsers() {
@@ -104,6 +119,10 @@ class FirebaseReposatory {
         .where("teamId", isEqualTo: teamId)
         // .where('email', isNotEqualTo: constEmail)
         .get();
+  }
+
+  Future<QuerySnapshot<Map<String, dynamic>>> getAdminUsers() {
+    return firebase.collection('users').where("payId", isEqualTo: payId).get();
   }
 
   Future<void> createUserAttend({
@@ -117,22 +136,6 @@ class FirebaseReposatory {
         .set({
       'lecture 1': '',
       'lecture 2': '',
-    });
-  }
-
-  Future<void> createUserMarathonAnswer({
-    required String marathonId,
-    required String answer,
-  }) async {
-    return firebase
-        .collection('users')
-        .doc(constUid)
-        .collection('marathon')
-        .doc(marathonId)
-        .set({
-      'answer': answer,
-      'comment': '',
-      'modifiedTime': DateTime.now().toString(),
     });
   }
 
@@ -151,46 +154,6 @@ class FirebaseReposatory {
     });
   }
 
-  Future<void> createUserKraat({
-    required bool baker,
-    required bool talta,
-    required bool sata,
-    required bool tas3a,
-    required bool grob,
-    required bool noom,
-    required bool ertgalyBaker,
-    required bool ertgalyNom,
-    required bool tnawel,
-    required bool odas,
-    required bool eatraf,
-    required bool soom,
-    required bool oldBible,
-    required bool newBible,
-  }) async {
-    KraatModel kraatModel = KraatModel(
-        DateFormat('yyyy-MM-dd').format(DateTime.now()).toString(),
-        baker,
-        talta,
-        sata,
-        tas3a,
-        grob,
-        noom,
-        ertgalyBaker,
-        ertgalyNom,
-        tnawel,
-        odas,
-        eatraf,
-        soom,
-        oldBible,
-        newBible);
-    return firebase
-        .collection('users')
-        .doc(constUid)
-        .collection('kraat')
-        .doc(DateFormat('yyyy-MM-dd').format(DateTime.now()))
-        .set(kraatModel.toMap());
-  }
-
   Future<void> updateUserAttend({
     required String? userId,
     required String lectureNum,
@@ -203,5 +166,17 @@ class FirebaseReposatory {
         .update({
       'lecture $lectureNum': DateFormat('hh : mma').format(DateTime.now())
     });
+  }
+
+  (
+    Future<QuerySnapshot<Map<String, dynamic>>>,
+    Future<QuerySnapshot<Map<String, dynamic>>>,
+    Future<QuerySnapshot<Map<String, dynamic>>>
+  ) makeReport({required String? userId}) {
+    return (
+      firebase.collection('users').doc(userId).collection('attend').get(),
+      firebase.collection('users').doc(userId).collection('kraat').get(),
+      firebase.collection('users').doc(userId).collection('marathon').get()
+    );
   }
 }

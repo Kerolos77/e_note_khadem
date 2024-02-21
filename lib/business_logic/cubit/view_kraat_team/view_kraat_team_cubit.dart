@@ -53,11 +53,13 @@ class ViewKraatTeamCubit extends Cubit<ViewKraatTeamStates> {
   }
 
   void getUserKraat(String userId) {
-    emit(GetUserKraatLoadingViewKraatTeamState());
-    firebaseReposatory.getKraatData(userId: userId).then((value) {
-      kraatList = [];
-      DateTime start = DateTime.parse(startDate);
-      DateTime end = DateTime.parse(endDate);
+    Future(() {}).then((value) {
+      emit(GetUserKraatLoadingViewKraatTeamState());
+    });
+    DateTime start = DateTime.parse(startDate);
+    DateTime end = DateTime.parse(endDate);
+    kraatList = [];
+    firebaseReposatory.getUserKraatData(userId: userId).then((value) {
       for (int i = 0; i < value.docs.length; i++) {
         DateTime date = DateTime.parse(value.docs[i].data()['date']);
         if (date.compareTo(start) >= 0 && date.compareTo(end) <= 0) {
@@ -125,7 +127,7 @@ class ViewKraatTeamCubit extends Cubit<ViewKraatTeamStates> {
       }
       emit(GetUserKraatSuccessViewKraatTeamState());
     }).catchError((error) {
-      print('error ${error.toString()}');
+      emit(GetUserKraatErrorViewKraatTeamState(error));
     });
   }
 }
